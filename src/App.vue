@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -96,11 +96,20 @@ const isAuthenticated = ref(localStorage.getItem('auth') === 'true')
 const role = ref(localStorage.getItem('role') || '')
 const username = ref(localStorage.getItem('username') || '')
 
-// Theo dõi sự thay đổi (Ví dụ sau khi đăng nhập thành công hoặc chuyển khoản)
-watchEffect(() => {
+// Hàm cập nhật dữ liệu từ localStorage
+const updateAuthState = () => {
   isAuthenticated.value = localStorage.getItem('auth') === 'true'
   role.value = localStorage.getItem('role') || ''
   username.value = localStorage.getItem('username') || ''
+}
+
+// Lắng nghe sự kiện storage khi đăng nhập hoặc đăng xuất từ tab khác
+onMounted(() => {
+  window.addEventListener('storage', updateAuthState)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('storage', updateAuthState)
 })
 
 // Hàm xử lý đăng xuất hệ thống
